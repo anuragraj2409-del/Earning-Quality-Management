@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings Quality Management</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased font-sans">
+
+<div class="flex h-screen overflow-hidden">
+
+    <aside id="sidebar" class="w-72 bg-slate-900 text-white flex-shrink-0 transition-all duration-300 flex flex-col z-20">
+        <div class="p-6 border-b border-slate-800">
+            <h1 class="text-xl font-black tracking-tight text-blue-500">EQM</h1>
+            <p class="text-[10px] text-slate-500 uppercase tracking-widest font-bold mt-1">Forensic Lab</p>
+        </div>
+
+        <div class="p-4 mt-4">
+            <div class="bg-slate-800/50 rounded-2xl p-4 flex items-center gap-3 border border-slate-700/50">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center font-bold text-sm text-white">JD</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold truncate">John Doe</p>
+                    <p class="text-[10px] text-slate-500 font-medium">Senior Auditor</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-4 px-4 space-y-1">
+            <a href="#" class="nav-item active-nav block px-4 py-3 rounded-xl text-blue-400 font-semibold text-sm border border-blue-600/20" onclick="showTab('analytics', this)">Dashboard</a>
+            <a href="#" class="nav-item block px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 transition text-sm" onclick="showTab('explorer', this)">Data Explorer</a>
+            <a href="#" class="nav-item block px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 transition text-sm" onclick="showTab('ai-workspace', this)">Forensic AI</a>
+            <a href="#" class="nav-item block px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 transition text-sm" onclick="showTab('signals', this)">Risk Analysis</a>
+            <a href="#" class="nav-item block px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 transition text-sm" onclick="showTab('settings', this)">Settings</a>
+        </nav>
+
+        <div class="p-6 mt-auto border-t border-slate-800">
+            <h4 class="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-4">Recent Sessions</h4>
+            <ul id="historyList" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                <li class="text-[11px] text-slate-500 italic text-center">No recent sessions</li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="flex-grow flex flex-col h-full bg-slate-50 relative">
+        
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10">
+            <div class="flex items-center gap-4">
+                <button class="p-2 hover:bg-slate-100 rounded-lg text-slate-500" onclick="toggleSidebar()">☰</button>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest">Earnings Quality Management</h2>
+            </div>
+            <div id="statusBadge" class="px-4 py-1.5 bg-emerald-50 text-emerald-600 text-[10px] font-black rounded-full border border-emerald-200 shadow-sm shadow-emerald-100">SYSTEM READY</div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+
+            <section id="analytics" class="tab active-tab space-y-8">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden">
+                    <div class="max-w-2xl">
+                        <h3 class="text-xl font-bold text-slate-900">Analyze Corporate Disclosures</h3>
+                        <p class="text-sm text-slate-500 mt-2 leading-relaxed">
+                            Upload a standard financial workbook (.xlsx) to trigger our Forensic AI engine. 
+                            We evaluate 12+ fraud vectors including Beneish M-Score and Benford's Law.
+                        </p>
+
+                        <div class="mt-8 flex flex-wrap items-center gap-4">
+                            <input type="file" id="fileInput" accept=".xlsx" 
+                                class="text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer transition-all">
+                            
+                            <button onclick="runAnalysis()" class="px-8 py-3 bg-blue-600 text-white rounded-xl text-xs font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 active:scale-95">Run Forensic Engine</button>
+                            <button id="exportBtn" disabled onclick="exportPDF()" class="px-8 py-3 bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-50 disabled:opacity-50 transition">Export PDF</button>
+                        </div>
+                    </div>
+                    <span id="loadingText" class="hidden absolute top-8 right-8 animate-pulse text-blue-600 font-bold text-xs">⚙️ Analyzing...</span>
+                </div>
+
+                <div id="metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                        <h3 class="font-bold text-slate-800 mb-4">Digit Frequency (Benford's Law)</h3>
+                        <div id="benfordChart" class="w-full h-[320px]"></div>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-center">
+                        <h3 class="font-bold text-slate-800 mb-4 text-center border-b pb-4">Final Verdict</h3>
+                        <div id="finalVerdict" class="p-10 rounded-[2.5rem] border-2 border-dashed border-slate-200 text-slate-400 text-center font-black text-2xl tracking-tight transition-all">
+                            NO ACTIVE ANALYSIS
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="explorer" class="tab hidden space-y-6">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-bold">Workbook Data Explorer</h2>
+                    <p class="text-sm text-slate-500 mt-2">Manual verification of extracted raw accounting figures.</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+                        <div class="overflow-x-auto rounded-xl border border-slate-100">
+                            <table class="w-full text-left text-sm border-collapse">
+                                <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase">
+                                    <tr><th class="p-4">Extracted Account</th><th class="p-4">Extracted Value</th></tr>
+                                </thead>
+                                <tbody id="rawDataTable" class="divide-y divide-slate-100">
+                                    <tr><td colspan="2" class="p-10 text-center italic text-slate-400">Run an analysis to explore raw data.</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div id="explorerChart" class="h-full min-h-[300px] flex items-center justify-center text-slate-300 italic">Financial trend visualization will appear here.</div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ai-workspace" class="tab hidden h-full flex flex-col space-y-6">
+                <div class="flex-grow bg-white rounded-[3rem] border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+                    <div class="p-8 bg-slate-900 text-white flex justify-between items-center">
+                        <div>
+                            <h2 class="text-2xl font-bold">AI Auditor Workspace</h2>
+                            <p class="text-xs text-slate-400 mt-1">Deep-dive analysis through natural language queries.</p>
+                        </div>
+                        <span class="text-[10px] bg-blue-500/20 text-blue-400 px-3 py-1 rounded border border-blue-500/30 font-black">ACTIVE SESSION</span>
+                    </div>
+
+                    <div id="chatBody" class="flex-1 p-10 overflow-y-auto space-y-6 bg-slate-50 custom-scrollbar">
+                        <div class="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm max-w-2xl">
+                            <h4 class="font-bold text-slate-900 mb-2">Audit Prompts</h4>
+                            <p class="text-sm text-slate-500 mb-6">Select a predefined prompt to analyze specific fraud vectors:</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button onclick="quickPrompt('Summarize the manipulation risk')" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition">"Summarize the manipulation risk"</button>
+                                <button onclick="quickPrompt('Analyze the accruals gap')" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition">"Analyze the accruals gap"</button>
+                                <button onclick="quickPrompt('Identify Benford anomalies')" class="px-5 py-2.5 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold border border-blue-100 hover:bg-blue-100 transition">"Identify Benford anomalies"</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 bg-white border-t">
+                        <div class="relative max-w-4xl mx-auto">
+                            <input id="chatInput" type="text" placeholder="Type a forensic question (e.g., 'What is the tax gap?')..." 
+                                class="w-full p-5 pr-16 rounded-2xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all shadow-inner bg-slate-50">
+                            <button onclick="handleChatInput()" class="absolute right-4 top-4 bg-blue-600 text-white p-2 rounded-lg font-bold">↵</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="signals" class="tab hidden space-y-6">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-bold">Forensic Risk Breakdown</h2>
+                    <table class="w-full mt-8 text-left text-sm">
+                        <thead class="text-[10px] text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                            <tr><th class="pb-4">Forensic Metric</th><th class="pb-4">Analyzed Value</th><th class="pb-4">Risk Status</th></tr>
+                        </thead>
+                        <tbody id="flagsTable" class="divide-y divide-slate-50">
+                            </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="settings" class="tab hidden space-y-6">
+                <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+                    <h2 class="text-2xl font-bold">System Configuration</h2>
+                    <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100">
+                            <h4 class="font-bold text-slate-800 mb-4">Risk Thresholds</h4>
+                            <div class="space-y-4 text-xs text-slate-600">
+                                <div class="flex justify-between"><span>Accruals Gap Limit</span><strong>25.0%</strong></div>
+                                <div class="flex justify-between"><span>Tax Discrepancy Limit</span><strong>10.0%</strong></div>
+                            </div>
+                        </div>
+                        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 text-xs space-y-2 text-slate-500">
+                            <p><strong>Theme:</strong> Professional Light (Tailwind Enabled)</p>
+                            <p><strong>Engine:</strong> Forensic AI v1.4.2</p>
+                            <p><strong>Encryption:</strong> AES-256 Session Active</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <div id="helpModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6 transition-opacity">
+        <div class="bg-white max-w-lg w-full rounded-[3rem] p-10 shadow-2xl">
+            <h2 class="text-2xl font-black text-slate-900">User Guide</h2>
+            <div class="mt-6 space-y-6 text-sm text-slate-600 leading-relaxed">
+                <p><strong>1. Analysis:</strong> Upload a workbook on the Dashboard to trigger the Forensic Engine.</p>
+                <p><strong>2. Data Explorer:</strong> Navigate here to see exactly which figures the AI extracted from your sheets.</p>
+                <p><strong>3. AI Workspace:</strong> Use the dedicated AI page to ask natural language questions about the results.</p>
+            </div>
+            <button onclick="closeHelpModal()" class="mt-10 w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition">I Understand</button>
+        </div>
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

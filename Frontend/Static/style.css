@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono&display=swap');
+
+/* ================= CUSTOM SCROLLBAR ================= */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
+}
+
+/* ================= SIDEBAR & NAVIGATION ================= */
+#sidebar {
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#sidebar.collapsed {
+  width: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* Updated active state: High-contrast Blue on Light background */
+.active-nav {
+  background: rgba(37, 99, 235, 0.1) !important;
+  color: #2563eb !important; 
+  border-left: 4px solid #2563eb !important;
+  font-weight: 700 !important;
+}
+
+/* ================= TAB SYSTEM ================= */
+.tab {
+  display: none;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.tab:not(.hidden) {
+  display: block !important;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= FORENSIC INDICATORS (RED / GREEN) ================= */
+/* High-contrast colors for forensic signal visibility */
+.text-rose-500 {
+  color: #e11d48 !important; /* Critical Red */
+}
+
+.text-emerald-500 {
+  color: #10b981 !important; /* Optimal Green */
+}
+
+/* ================= TOOLTIP STYLING (HOVER DESCRIPTION) ================= */
+/* Container for the forensic hover definitions */
+.group .absolute {
+  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(10px);
+}
+
+.group:hover .absolute {
+  opacity: 1 !important;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Tooltip triangle pointer */
+.group:hover .absolute.bottom-full::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 20px;
+  border-width: 6px;
+  border-style: solid;
+  border-color: #0f172a transparent transparent transparent;
+}
+
+/* ================= DATA EXPLORER & TABLES ================= */
+#rawDataTable tr {
+  transition: background-color 0.2s;
+}
+
+#rawDataTable tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* ================= STATUS BADGE ================= */
+#statusBadge {
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+/* ================= MOBILE OPTIMIZATION ================= */
+@media (max-width: 768px) {
+  #sidebar {
+    position: absolute;
+    height: 100%;
+    z-index: 50;
+  }
+  
+  .metric-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  #benfordChart, #explorerChart {
+    height: 250px !important;
+  }
+}
