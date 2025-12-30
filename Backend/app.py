@@ -8,9 +8,10 @@ from reportlab.lib import colors
 
 app = Flask(
     __name__,
-    template_folder="../frontend/templates",
-    static_folder="../frontend/static"
+    template_folder="../Frontend/templates",
+    static_folder="../Frontend/Static"
 )
+
 
 # REQUIRED for login sessions
 app.secret_key = "vigilance-secret-key"
@@ -187,4 +188,6 @@ def export_pdf():
 # -------------------------------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
